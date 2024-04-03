@@ -224,4 +224,73 @@ while (x, y, theta) != (x_start, y_start, theta_start):
 path.append((x, y))
 path.reverse()
 
+########## STEP 5: REPRESENT THE OPTIMAL PATH ##########
 
+# Start a video writer in mp4 format
+astar = cv2.VideoWriter('astar.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 50, (width, height))
+
+# Draw the start and goal nodes on the canvas
+cv2.circle(canvas, (x_start, y_start), 10, (0, 255, 0), 20)
+cv2.circle(canvas, (x_goal, y_goal), 10, (0, 165, 255), 20)
+
+# Draw on every threshold frame
+threshold = 200
+counter = 0
+
+# Draw the visited nodes on the canvas as a curve going from the parent to the child
+for x, y, theta in parent:
+    counter += 1
+    # Plot this point on the canvas
+    # cv2.circle(canvas, (int(x), int(y)), 1, (255, 0, 0), 10)
+    # Plot the curve from the parent to the child
+    for rpm_l, rpm_r in action_set:
+        ul = 2 * np.pi * rpm_l / 60
+        ur = 2 * np.pi * rpm_r / 60
+        # Apply these velocities for t seconds to the model
+        t = 0
+        dt = 0.1
+        d = 0
+        while t < 0.3:
+            x_new, y_new, theta_new = x, y, theta
+            dx_dt = WHEEL_RADIUS/2 * (ul + ur) * np.cos(np.radians(theta_new))
+            dy_dt = WHEEL_RADIUS/2 * (ul + ur) * np.sin(np.radians(theta_new))
+            dtheta_dt = np.rad2deg(WHEEL_RADIUS/WHEEL_DISTANCE * (ur - ul))
+            # Get the new state
+            x_new += dx_dt * dt
+            y_new += dy_dt * dt
+            theta_new += dtheta_dt * dt 
+            # Plot this point on the canvas
+            x_cvs = int(round(x_new*2)/2)
+            y_cvs = int(round(y_new*2)/2)
+            if clearance <= x_new < width-clearance and clearance <= y_new < height-clearance and canvas[y_cvs, x_cvs, 0] == 255:
+                cv2.line(canvas, (int(x), int(y)), (int(x_new), int(y_new)), (255, 0, 0), 5)
+            t += dt 
+    if(counter == threshold):
+        # Resize the canvas by a factor of scale
+        canvas_resized = cv2.resize(canvas, (width_resized, height_resized))
+        cv2.imshow('Canvas', canvas_resized)
+        # cv2.imshow('Canvas', canvas)
+        astar.write(canvas_resized)
+        cv2.waitKey(1)  
+        counter = 0
+    
+# Draw the start and goal nodes on the canvas
+cv2.circle(canvas, (x_start, y_start), 10, (0, 255, 0), 20)
+cv2.circle(canvas, (x_goal, y_goal), 10, (0, 165, 255), 20)
+
+# Draw the path on the canvas
+for i in range(len(path)-1):
+    # Draw a red dot at path points
+    # cv2.circle(canvas, (int(path[i][0]), int(path[i][1])), 1, (0, 0, 255), 10)
+    # Draw a line connecting the path points
+    cv2.line(canvas, (int(path[i][0]), int(path[i][1])), (int(path[i+1][0]), int(path[i+1][1])), (0, 0, 255), 10)
+    # Resize the canvas by a factor of scale
+    canvas_resized = cv2.resize(canvas, (width_resized, height_resized))
+    cv2.imshow('Canvas', canvas_resized)
+    # cv2.imshow('Canvas', canvas)
+    astar.write(canvas_resized)
+
+# Release VideoWriter
+astar.release()
+cv2.waitKey(0)
+cv2.destroyAllWindows()
