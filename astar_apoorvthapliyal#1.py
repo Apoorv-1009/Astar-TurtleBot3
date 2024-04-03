@@ -211,3 +211,17 @@ if not reached:
     print("Exiting...")
     exit()
 
+########## STEP 4: OPTIMAL PATH ##########
+    
+# Get the path from the parent dictionary
+path = []
+# x, y = x_goal, y_goal   
+x, y, theta = x_achieved, y_achieved, theta_achieved
+while (x, y, theta) != (x_start, y_start, theta_start):
+    # print(x, y)
+    path.append((x, y))
+    x, y, theta = parent[(x, y, theta)]
+path.append((x, y))
+path.reverse()
+
+
