@@ -4,15 +4,21 @@ import heapq
 import time
 from math import dist
 
+########## STEP 0: TAKE INPUT FROM THE USER ##########
+
+clearance = int(input('Enter the clearance: '))
+rpm1 = int(input('Enter the rpm1: '))
+rpm2 = int(input('Enter the rpm2: '))
+
 ########## STEP 1: DEFINE THE ACTION SET ##########
 
 WHEEL_RADIUS = 33 #/1000 # 33mm
 ROBOT_RADIUS = 220 #/1000 # 220mm
 WHEEL_DISTANCE = 287 #/1000 # 287mm
-clearance = 20
+# clearance = 20
 clearance += ROBOT_RADIUS
 
-rpm1, rpm2 = 50, 100
+# rpm1, rpm2 = 50, 100
 
 action_set = [(0, rpm1), (rpm1, 0), (rpm1, rpm1), (0, rpm2), 
               (rpm2, 0), (rpm2, rpm2), (rpm1, rpm2), (rpm2, rpm1)]
@@ -78,8 +84,40 @@ canvas_resized = cv2.resize(canvas, (width_resized, height_resized))
 
 ########## STEP 3: IMPLEMENT STAR TO SEARCH THE TREE AND FIND THE OPTIMAL PATH ##########
 
-x_start, y_start, theta_start = clearance+1, clearance+1, 0
-x_goal, y_goal = width-clearance-1, clearance+1
+# Enter the start and goal nodes with bottom left as origin
+# Take input from the user, till its not in the obstacle space
+while True:
+    x_start = int(input('Enter start x position' + f'({clearance}-{width-clearance-1}): '))
+    y_start = int(input('Enter start y position' + f'({clearance}-{height-clearance-1}): '))
+    theta_start = int(input('Enter start theta position (+180 to -180): '))
+
+    y_start = height-y_start-1
+    try:
+        if canvas[y_start, x_start, 0] == 255 and 180 >= theta_start >= -180:
+            break
+    except:
+        print('Invalid input, re-enter the start node position')
+    else:
+        print('The start node is in the obstacle space, re-enter the goal node position')
+
+while True:
+    x_goal = int(input('Enter goal x position' + f'({clearance}-{width-clearance-1}): '))
+    y_goal = int(input('Enter goal y position' + f'({clearance}-{height-clearance-1}): '))
+
+    y_goal = height-y_goal-1
+    try:
+        if canvas[y_goal, x_goal, 0] == 255:
+            break
+    except:
+        print('Invalid input, re-enter the goal node position')
+    else:
+        print('The goal node is in the obstacle space, re-enter the goal node position')
+
+print("Positions accepted! Calculating path...")
+
+
+# x_start, y_start, theta_start = clearance+1, clearance+1, 0
+# x_goal, y_goal = width-clearance-1, clearance+1
 # x_goal, y_goal = width-clearance-1, height-clearance+1
 
 distance_threshold = 20
@@ -158,11 +196,8 @@ while q:
             d += np.sqrt( (dx_dt*dt)**2 + (dy_dt*dt)**2)
             t += dt 
 
-        # d = dist((x_new, y_new), (x, y))
         # Let the action cost be a function of distance travelled
         action_cost = int(d)
-
-        # print("x_new: ", x_new, "y_new: ", y_new, "theta_new: ", theta_new, "ul: ", ul, "ur: ", ur)
 
         # Keep the theta_newing angle within 180 and -180
         if theta_new > 180:
@@ -227,7 +262,7 @@ path.reverse()
 ########## STEP 5: REPRESENT THE OPTIMAL PATH ##########
 
 # Start a video writer in mp4 format
-astar = cv2.VideoWriter('astar.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 50, (width, height))
+astar = cv2.VideoWriter('astar.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 50, (width_resized, height_resized))
 
 # Draw the start and goal nodes on the canvas
 cv2.circle(canvas, (x_start, y_start), 10, (0, 255, 0), 20)
@@ -241,7 +276,7 @@ counter = 0
 for x, y, theta in parent:
     counter += 1
     # Plot this point on the canvas
-    # cv2.circle(canvas, (int(x), int(y)), 1, (255, 0, 0), 10)
+    cv2.circle(canvas, (int(x), int(y)), 1, (255, 0, 0), 5)
     # Plot the curve from the parent to the child
     for rpm_l, rpm_r in action_set:
         ul = 2 * np.pi * rpm_l / 60
@@ -265,6 +300,7 @@ for x, y, theta in parent:
             if clearance <= x_new < width-clearance and clearance <= y_new < height-clearance and canvas[y_cvs, x_cvs, 0] == 255:
                 cv2.line(canvas, (int(x), int(y)), (int(x_new), int(y_new)), (255, 0, 0), 5)
             t += dt 
+
     if(counter == threshold):
         # Resize the canvas by a factor of scale
         canvas_resized = cv2.resize(canvas, (width_resized, height_resized))
@@ -288,6 +324,10 @@ for i in range(len(path)-1):
     canvas_resized = cv2.resize(canvas, (width_resized, height_resized))
     cv2.imshow('Canvas', canvas_resized)
     # cv2.imshow('Canvas', canvas)
+    astar.write(canvas_resized)
+
+# Write the final frame a few times
+for i in range(100):
     astar.write(canvas_resized)
 
 # Release VideoWriter
