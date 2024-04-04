@@ -17,10 +17,11 @@ rpm2 = int(input('Enter the rpm2: '))
 WHEEL_RADIUS = 33 #/1000 # 33mm
 ROBOT_RADIUS = 220 #/1000 # 220mm
 WHEEL_DISTANCE = 287 #/1000 # 287mm
-# clearance = 20
+# clearance = 10
 clearance += ROBOT_RADIUS
-
-# rpm1, rpm2 = 50, 100
+# rpm1, rpm2 = 25, 50
+distance_threshold = 12
+angular_threshold = 20
 
 action_set = [(0, rpm1), (rpm1, 0), (rpm1, rpm1), (0, rpm2), 
               (rpm2, 0), (rpm2, rpm2), (rpm1, rpm2), (rpm2, rpm1)]
@@ -32,7 +33,6 @@ scale = 5
 
 clearance_color = (0, 255, 255)
 obstacle_color = (0, 0, 0)
-robot_radius_color = (255, 105, 180)
 
 # Create a black canvas
 canvas = np.zeros((height, width, 3), dtype="uint8")
@@ -122,10 +122,6 @@ print("Positions accepted! Calculating path...")
 # x_goal, y_goal = width-clearance-1, clearance+1
 # x_goal, y_goal = width-clearance-1, height-clearance+1
 
-distance_threshold = 20
-angular_threshold = 30
-dt = 0.1
-
 # Make a lambda function to adjust the value of x to the visited space
 adjust = lambda x, threshold: int(int(round(x*2)/2)/threshold)
 
@@ -183,20 +179,30 @@ while q:
         t = 0
         dt = 0.1
         d = 0
+        T = 0.3
         x_new, y_new, theta_new = x, y, theta
-        while t < 0.4:
+        while t < T:
             dx_dt = WHEEL_RADIUS/2 * (ul + ur) * np.cos(np.radians(theta_new))
             dy_dt = WHEEL_RADIUS/2 * (ul + ur) * np.sin(np.radians(theta_new))
             dtheta_dt = np.rad2deg(WHEEL_RADIUS/WHEEL_DISTANCE * (ur - ul))
+
+            # Save the current state
+            x_prev, y_prev, theta_prev = x_new, y_new, theta_new
 
             # Get the new state
             x_new += dx_dt * dt
             y_new += dy_dt * dt
             theta_new += dtheta_dt * dt 
 
-            # Calculate the total distance travelled
-            d += np.sqrt( (dx_dt*dt)**2 + (dy_dt*dt)**2)
-            t += dt 
+            # Check if the new state is in the obstacle space
+            if canvas[int(round(y_new*2)/2), int(round(x_new*2)/2), 0] == 255:
+                # Calculate the total distance travelled
+                d += np.sqrt( (dx_dt*dt)**2 + (dy_dt*dt)**2)
+                t += dt 
+            # If the new state is in the obstacle space, revert to the previous state
+            else:
+                x_new, y_new, theta_new = x_prev, y_prev, theta_prev
+                break
 
         # Let the action cost be a function of distance travelled
         action_cost = int(d)
@@ -287,11 +293,12 @@ for x, y, theta in parent:
         t = 0
         dt = 0.1
         d = 0
-        while t < 0.3:
-            x_new, y_new, theta_new = x, y, theta
+        x_new, y_new, theta_new = x, y, theta
+        while t < T:
             dx_dt = WHEEL_RADIUS/2 * (ul + ur) * np.cos(np.radians(theta_new))
             dy_dt = WHEEL_RADIUS/2 * (ul + ur) * np.sin(np.radians(theta_new))
             dtheta_dt = np.rad2deg(WHEEL_RADIUS/WHEEL_DISTANCE * (ur - ul))
+            
             # Get the new state
             x_new += dx_dt * dt
             y_new += dy_dt * dt
@@ -299,9 +306,15 @@ for x, y, theta in parent:
             # Plot this point on the canvas
             x_cvs = int(round(x_new*2)/2)
             y_cvs = int(round(y_new*2)/2)
-            if clearance <= x_new < width-clearance and clearance <= y_new < height-clearance and canvas[y_cvs, x_cvs, 0] == 255:
-                cv2.line(canvas, (int(x), int(y)), (int(x_new), int(y_new)), (255, 0, 0), 5)
-            t += dt 
+            # x_cvs = int(x_new)
+            # y_cvs = int(y_new)
+            if clearance <= x_new < width-clearance-1 and clearance <= y_new < height-clearance-1 and canvas[y_cvs, x_cvs, 0] == 255:
+                cv2.line(canvas, (int(x), int(y)), (int(x_cvs), int(y_cvs)), (254, 0, 0), 5)
+                # cv2.circle(canvas, (int(x_cvs), int(y_cvs)), 1, (255, 0, 0), 10)
+                x, y = x_cvs, y_cvs
+                t += dt 
+            else:
+                break
 
     if(counter == threshold):
         # Resize the canvas by a factor of scale
@@ -319,7 +332,7 @@ cv2.circle(canvas, (x_goal, y_goal), 10, (0, 165, 255), 20)
 # Draw the path on the canvas
 for i in range(len(path)-1):
     # Draw a red dot at path points
-    # cv2.circle(canvas, (int(path[i][0]), int(path[i][1])), 1, (0, 0, 255), 10)
+    # cv2.circle(canvas, (int(path[i][0]), int(path[i][1])), 1, (0, 0, 255), 15)
     # Draw a line connecting the path points
     cv2.line(canvas, (int(path[i][0]), int(path[i][1])), (int(path[i+1][0]), int(path[i+1][1])), (0, 0, 255), 10)
     # Resize the canvas by a factor of scale
