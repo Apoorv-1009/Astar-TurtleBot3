@@ -20,8 +20,9 @@ WHEEL_DISTANCE = 287 #/1000 # 287mm
 # clearance = 10
 clearance += ROBOT_RADIUS
 # rpm1, rpm2 = 25, 50
-distance_threshold = 12
-angular_threshold = 20
+distance_threshold = min(rpm1, rpm2) / 2
+# angular_threshold = min(rpm1, rpm2) / 2
+angular_threshold = 30
 
 action_set = [(0, rpm1), (rpm1, 0), (rpm1, rpm1), (0, rpm2), 
               (rpm2, 0), (rpm2, rpm2), (rpm1, rpm2), (rpm2, rpm1)]
@@ -76,9 +77,6 @@ for i in range(x_center-radius, x_center+radius):
         if (i-x_center)**2 + (j-y_center)**2 <= radius**2:
             canvas[j, i] = obstacle_color
 
-x_start, y_start = clearance+1, clearance+1
-x_goal, y_goal = width-clearance-1, clearance+1
-
 # Resize the canvas by a factor of scale
 width_resized = int(width/scale)
 height_resized = int(height/scale)
@@ -116,7 +114,6 @@ while True:
         print('The goal node is in the obstacle space, re-enter the goal node position')
 
 print("Positions accepted! Calculating path...")
-
 
 # x_start, y_start, theta_start = clearance+1, clearance+1, 0
 # x_goal, y_goal = width-clearance-1, clearance+1
@@ -179,7 +176,7 @@ while q:
         t = 0
         dt = 0.1
         d = 0
-        T = 0.3
+        T = 0.4
         x_new, y_new, theta_new = x, y, theta
         while t < T:
             dx_dt = WHEEL_RADIUS/2 * (ul + ur) * np.cos(np.radians(theta_new))
@@ -284,16 +281,17 @@ counter = 0
 for x, y, theta in parent:
     counter += 1
     # Plot this point on the canvas
-    cv2.circle(canvas, (int(x), int(y)), 1, (255, 0, 0), 5)
+    # cv2.circle(canvas, (int(x), int(y)), 1, (255, 0, 0), 5)
     # Plot the curve from the parent to the child
     for rpm_l, rpm_r in action_set:
         ul = 2 * np.pi * rpm_l / 60
         ur = 2 * np.pi * rpm_r / 60
-        # Apply these velocities for t seconds to the model
+        # Apply these velocities for T seconds to the model
         t = 0
         dt = 0.1
         d = 0
         x_new, y_new, theta_new = x, y, theta
+        x_parent, y_parent = x, y
         while t < T:
             dx_dt = WHEEL_RADIUS/2 * (ul + ur) * np.cos(np.radians(theta_new))
             dy_dt = WHEEL_RADIUS/2 * (ul + ur) * np.sin(np.radians(theta_new))
@@ -304,14 +302,15 @@ for x, y, theta in parent:
             y_new += dy_dt * dt
             theta_new += dtheta_dt * dt 
             # Plot this point on the canvas
-            x_cvs = int(round(x_new*2)/2)
-            y_cvs = int(round(y_new*2)/2)
-            # x_cvs = int(x_new)
-            # y_cvs = int(y_new)
-            if clearance <= x_new < width-clearance-1 and clearance <= y_new < height-clearance-1 and canvas[y_cvs, x_cvs, 0] == 255:
-                cv2.line(canvas, (int(x), int(y)), (int(x_cvs), int(y_cvs)), (254, 0, 0), 5)
+            # x_cvs = int(round(x_new*2)/2)
+            # y_cvs = int(round(y_new*2)/2)
+            x_cvs = int(x_new)
+            y_cvs = int(y_new)
+            # if clearance <= x_new < width-clearance-1 and clearance <= y_new < height-clearance-1 and canvas[y_cvs, x_cvs, 0] == 255:
+            if canvas[y_cvs, x_cvs, 0] == 255:
+                cv2.line(canvas, (int(x_parent), int(y_parent)), (x_cvs, y_cvs), (254, 0, 0), 5)
                 # cv2.circle(canvas, (int(x_cvs), int(y_cvs)), 1, (255, 0, 0), 10)
-                x, y = x_cvs, y_cvs
+                x_parent, y_parent = x_new, y_new
                 t += dt 
             else:
                 break
