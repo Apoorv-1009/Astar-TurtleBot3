@@ -21,8 +21,8 @@ WHEEL_DISTANCE = 287 #/1000 # 287mm
 clearance += ROBOT_RADIUS
 # rpm1, rpm2 = 25, 50
 distance_threshold = min(rpm1, rpm2) / 2
-# angular_threshold = min(rpm1, rpm2) / 2
-angular_threshold = 30
+angular_threshold = min(rpm1, rpm2) / 2
+# angular_threshold = 30
 
 action_set = [(0, rpm1), (rpm1, 0), (rpm1, rpm1), (0, rpm2), 
               (rpm2, 0), (rpm2, rpm2), (rpm1, rpm2), (rpm2, rpm1)]
