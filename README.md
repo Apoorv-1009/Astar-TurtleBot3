@@ -42,7 +42,7 @@ The astar_apoorvthapliyal#1.py code demonstrates path planning using the A* algo
 
 ### Note
 1. The script generates an output video (`astar.mp4`) showing the progression of the algorithm and the final result.
-2. Video of output: 
+2. Video of output: https://youtu.be/XTeudTxqjBo
 
 ## Part 02: Gazebo Visualization
 The turtlebot3_project3 package contains the source files for the A* algorithm in Gazebo using ROS2 on a Turtlebot3 Waffle. The algorithm finds the shortest path from the spawn position to a goal node.
