@@ -21,8 +21,8 @@ WHEEL_DISTANCE = 287 #/1000 # 287mm
 clearance += ROBOT_RADIUS
 # rpm1, rpm2 = 25, 50
 distance_threshold = min(rpm1, rpm2) / 2
-# angular_threshold = min(rpm1, rpm2) / 2
-angular_threshold = 30
+angular_threshold = min(rpm1, rpm2) / 2
+# angular_threshold = 30
 
 action_set = [(0, rpm1), (rpm1, 0), (rpm1, rpm1), (0, rpm2), 
               (rpm2, 0), (rpm2, rpm2), (rpm1, rpm2), (rpm2, rpm1)]
@@ -281,7 +281,7 @@ counter = 0
 for x, y, theta in parent:
     counter += 1
     # Plot this point on the canvas
-    # cv2.circle(canvas, (int(x), int(y)), 1, (255, 0, 0), 5)
+    cv2.circle(canvas, (int(x), int(y)), 1, (255, 0, 0), 10)
     # Plot the curve from the parent to the child
     for rpm_l, rpm_r in action_set:
         ul = 2 * np.pi * rpm_l / 60
@@ -302,16 +302,18 @@ for x, y, theta in parent:
             y_new += dy_dt * dt
             theta_new += dtheta_dt * dt 
             # Plot this point on the canvas
-            # x_cvs = int(round(x_new*2)/2)
-            # y_cvs = int(round(y_new*2)/2)
-            x_cvs = int(x_new)
-            y_cvs = int(y_new)
+            x_cvs = int(round(x_new*2)/2)
+            y_cvs = int(round(y_new*2)/2)
+            # x_cvs = int(x_new)
+            # y_cvs = int(y_new)
             # if clearance <= x_new < width-clearance-1 and clearance <= y_new < height-clearance-1 and canvas[y_cvs, x_cvs, 0] == 255:
             if canvas[y_cvs, x_cvs, 0] == 255:
                 cv2.line(canvas, (int(x_parent), int(y_parent)), (x_cvs, y_cvs), (254, 0, 0), 5)
-                # cv2.circle(canvas, (int(x_cvs), int(y_cvs)), 1, (255, 0, 0), 10)
                 x_parent, y_parent = x_new, y_new
                 t += dt 
+            elif canvas[y_cvs, x_cvs, 0] == 254:
+                cv2.line(canvas, (int(x_parent), int(y_parent)), (x_cvs, y_cvs), (254, 0, 0), 5)
+                break
             else:
                 break
 
