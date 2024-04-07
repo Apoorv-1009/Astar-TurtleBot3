@@ -77,4 +77,4 @@ After running the A* node, a path will be generated and visualised. After dismis
 - Goal x position (mm): 5759
 - Goal y position (mm): 1758 <br>
 (The above parameters are defined in the map frame with bottom left as origin, and NOT in the gazebo frame) <br>
-2. Video of output:
+2. Video of output: https://youtu.be/3WhRNxBkrCs
