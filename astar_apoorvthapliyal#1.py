@@ -281,7 +281,7 @@ counter = 0
 for x, y, theta in parent:
     counter += 1
     # Plot this point on the canvas
-    cv2.circle(canvas, (int(x), int(y)), 1, (255, 0, 0), 10)
+    cv2.circle(canvas, (int(x), int(y)), 1, (254, 0, 0), 10)
     # Plot the curve from the parent to the child
     for rpm_l, rpm_r in action_set:
         ul = 2 * np.pi * rpm_l / 60
