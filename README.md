@@ -56,15 +56,19 @@ The turtlebot3_project3 package contains the source files for the A* algorithm i
 - math: For mathematical operations
 
 ### How to Launch the nodes
-After building and sourcing the workspace, run the following command:
+After building and sourcing the workspace, run the following command to start the gazebo enviornment:
 ```
 ros2 launch turtlebot3_project3 competition_world.launch.py
 ```
-In a new terminal, run the following command to start the A* node:
+In a new terminal, run the following command to start the A* path planner:
 ```
 ros2 run turtlebot3_project3 astar_controller.py
 ```
-After running the A* node, a path will be generated and visualised. After dismissing the map, the Turtlebot in the gazebo simulation will start to track the A* path using a closed loop controller.
+You will be prompted to enter the goal position with respect to the map frame (i.e. bottom left as origin). If the goal happens to be in the obstacle space, then the user will be repromted to enter the goal till it is not in the obstacle space. <br>
+Sample input: <br>
+Enter goal x position (mm)(5750-5769): 5750 <br>
+Enter goal y position (mm)(230-1769): 1769 <br>
+After entering the goal position, a path will be generated and visualised. Upon dismissing the map, the Turtlebot in the gazebo simulation will start to track the A* path using a closed loop controller.
 
 ### Note
 1. The following parameters were used for the A* path generation:
