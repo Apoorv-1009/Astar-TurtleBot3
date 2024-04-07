@@ -73,8 +73,6 @@ After running the A* node, a path will be generated and visualised. After dismis
 - RPM2 (Rounds-Per-Minute): 100
 - Start x position (mm): 500
 - Start y position (mm): 1000
-- Start angle (theta): 0
-- Goal x position (mm): 5759
-- Goal y position (mm): 1758 <br>
+- Start angle (theta): 0 <br>
 (The above parameters are defined in the map frame with bottom left as origin, and NOT in the gazebo frame) <br>
 2. Video of output: https://youtu.be/3WhRNxBkrCs
