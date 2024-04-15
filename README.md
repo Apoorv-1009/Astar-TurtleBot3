@@ -1,7 +1,4 @@
 # Path Planning using A* Algorithm on TurtleBot3
-Directory ID: apoorv10 <br>
-UID: 120401565 <br>
-Link to github: https://github.com/Apoorv-1009/Astar-TurtleBot3/tree/main
 
 ## Part 01: 2D Implementation
 The astar_apoorvthapliyal#1.py code demonstrates path planning using the A* algorithm in a 2D grid environment and Gazebo. The algorithm finds the shortest path from a start node to a goal node while avoiding obstacles.
