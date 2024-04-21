@@ -3,6 +3,8 @@
 ## Part 01: 2D Implementation
 The astar_apoorvthapliyal#1.py code demonstrates path planning using the A* algorithm in a 2D grid environment and Gazebo. The algorithm finds the shortest path from a start node to a goal node while avoiding obstacles.
 
+![astarcut-ezgif com-video-to-gif-converter](https://github.com/Apoorv-1009/Astar-TurtleBot3/assets/57452076/a2441089-b8a9-4134-bb7c-5ebf25ac3335)
+
 ### How to provide inputs
 
 1. Follow the prompts to enter the following sample inputs:
@@ -43,6 +45,8 @@ The astar_apoorvthapliyal#1.py code demonstrates path planning using the A* algo
 
 ## Part 02: Gazebo Visualization
 The turtlebot3_project3 package contains the source files for the A* algorithm in Gazebo using ROS2 on a Turtlebot3 Waffle. The algorithm finds the shortest path from the spawn position to a goal node.
+
+![astar_gazebocut-ezgif com-video-to-gif-converter](https://github.com/Apoorv-1009/Astar-TurtleBot3/assets/57452076/334f98d7-ca1c-489b-b883-7565ab6b4e09)
 
 ### Libraries/Dependencies Used
 
